@@ -1,0 +1,102 @@
+<html>
+  <body>
+    <!-- Set up your HTML here -->
+    <style>
+    .button {
+      background-color: #04AA6D; /* Green */
+      border: none;
+      color: white;
+      padding: 0.8rem 1.6rem;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 1rem;
+      margin: 0.25rem 0.125rem;
+      transition-duration: 0.4s;
+      cursor: pointer;
+      border-radius: 0.5rem;
+    }
+
+    .button1 {
+      background-color: white; 
+      color: black; 
+      border: 0.125rem solid #04AA6D;
+    }
+
+    .button1:hover {
+      background-color: #04AA6D;
+      color: white;
+    }
+    </style>
+
+    <button id='btn_fetch' class='button button1'>Fetch and open trace</button>
+    <br>
+
+    <script>
+    const ORIGIN = 'https://ui.perfetto.dev';
+    const btnFetch = document.getElementById('btn_fetch');
+
+      function sendMessageToStreamlitClient(type, data) {
+        var outData = Object.assign({
+          isStreamlitMessage: true,
+          type: type,
+        }, data);
+        window.parent.postMessage(outData, '*');
+      }
+
+      function init() {
+        sendMessageToStreamlitClient('streamlit:componentReady', {apiVersion: 1});
+      }
+
+      function openTrace(arrayBuffer, traceUrl) {
+        const win = window.open(ORIGIN);
+        if (!win) {
+          btnFetch.style.display = 'inline-flex';
+          btnFetch.onclick = () => openTrace(arrayBuffer, traceUrl);
+          btnFetch.innerText = 'Popups blocked, click here to open the trace file';
+
+          return;
+        }
+
+        const timer = setInterval(() => win.postMessage('PING', ORIGIN), 250);
+
+        const onMessageHandler = (evt) => {
+          if (evt.data !== 'PONG') return;
+
+          // We got a PONG, the UI is ready.
+          window.clearInterval(timer);
+          window.removeEventListener('message', onMessageHandler);
+
+          win.postMessage({
+            perfetto: {
+              buffer: arrayBuffer,
+              title: 'The Trace Title',
+          }}, ORIGIN);
+          btnFetch.style.display = 'none';
+        };
+
+        window.addEventListener('message', onMessageHandler);
+      }
+
+      function onDataFromPython(event) {
+        if (event.data.type !== 'streamlit:render') return;
+        window.removeEventListener('message', onDataFromPython);
+        const buffer = new Uint8Array(event.data.args.byte_array).buffer;
+        openTrace(buffer, 'example.com');
+      }
+
+      function setFrameHeight(height) {
+        sendMessageToStreamlitClient('streamlit:setFrameHeight', {height: height});
+      }
+
+      window.addEventListener('load', function() {
+        window.setTimeout(function() {
+          setFrameHeight(document.documentElement.clientHeight)
+        }, 0);
+      });
+
+      window.addEventListener('message', onDataFromPython);
+      init();
+    </script>
+  </body>
+</html>

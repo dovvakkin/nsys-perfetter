@@ -1,0 +1,11 @@
+[tool.black]
+line-length = 120
+exclude = "lib/protos"
+
+[tool.ruff]
+exclude = [
+    "lib/protos/",
+]
+
+[tool.isort]
+skip_glob = "lib/protos"
