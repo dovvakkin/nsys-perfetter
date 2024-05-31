@@ -13,9 +13,13 @@ This tool allows you to seamlessly convert Nvidia Nsight Systems profiles in SQL
 - Automatic conversion of .nsys-rep profiles to SQLite using nsys export (if nsys is available on the system)
 
 ## 📹 Demo
-
+GPT2-Medium from TensorRT-LLM examples profile
 
 https://github.com/dovvakkin/nsys-perfetter/assets/40765059/c45d8df5-177b-4fcf-b671-be8356a5bde4
+
+<img width="1060" alt="gpt2_nsys" src="https://github.com/dovvakkin/nsys-perfetter/assets/40765059/e0a7f100-7cee-4871-8f60-2acc7e331963">
+
+<img width="1128" alt="gpt2_perfetto" src="https://github.com/dovvakkin/nsys-perfetter/assets/40765059/b3f9751a-162d-4213-bfa7-da52505023bf">
 
 
 
@@ -47,4 +51,5 @@ There is no complex track hiding in Perfetto, so in converted profile no tracks 
 - Perfetto accepts profile via PostMessage from JavaScript, but passing little more than nothing (>50mb) is a problem for Streamlit. Maybe someday I'll implement more clean frontend in JS without Streamlit.
 - There could be more info about memory operations.
 - I could simply not collide with some profile details and, accordingly, not add them to the converter (CUDA Graphs for example).
+- Compatibility between SQLite exported profiles is not guaranteed. Project tested with schema version **3.11.1**
 
